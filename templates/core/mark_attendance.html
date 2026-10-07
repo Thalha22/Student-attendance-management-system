@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Mark Attendance{% endblock %}
+{% block content %}
+<h3 class="mb-1">Mark Attendance</h3>
+<p class="text-muted">{{ classroom }} — {{ date }}</p>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="card p-3">
+        <table class="table attendance-table">
+            <thead>
+                <tr><th>Roll No.</th><th>Name</th><th>Status</th><th>Remarks</th></tr>
+            </thead>
+            <tbody>
+            {% for row in rows %}
+                <tr>
+                    <td>{{ row.student.roll_number }}</td>
+                    <td>{{ row.student.user.get_full_name|default:row.student.user.username }}</td>
+                    <td>
+                        <select name="status_{{ row.student.id }}" class="form-select form-select-sm">
+                            {% for value, label in status_choices %}
+                                <option value="{{ value }}" {% if row.current_status == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" name="remarks_{{ row.student.id }}" class="form-control form-control-sm" placeholder="Optional">
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4" class="text-muted">No students in this class yet.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3"><i class="bi bi-check-lg"></i> Save Attendance</button>
+</form>
+{% endblock %}
